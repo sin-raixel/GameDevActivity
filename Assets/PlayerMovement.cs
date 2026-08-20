@@ -6,19 +6,20 @@ public class PlayerMovement : MonoBehaviour
     public CharacterController controller;
     public Transform cameraTransform ;
 
-    public float ms = 10f;
+    private Animator animator;
+    public float ms = 3f;
     public float rotationSpeed = 10f;
-    public float jumpHeight = 10f;
-    public float grav = -15f;
+    public float jumpHeight = 1f;
+    public float grav = 1f;
     public float height = 2f;
-
+    public float sprintSpeed = 10f;
     private Vector3 velocity;
 
 
     
     void Start()
     {
-        
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -48,8 +49,14 @@ public class PlayerMovement : MonoBehaviour
         right.Normalize();
 
         Vector3 move = forward* vertical+ right* horizontal;    
-        
-        if (move.magnitude > 0.1f)
+
+        bool isMoving = move.magnitude > 0.1f;
+        bool isSprinting = isMoving && Input.GetKey(KeyCode.LeftShift);
+        animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isSprinting", isSprinting);
+        animator.SetBool("isJumping", !grounded);
+
+        if (isMoving)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
@@ -58,31 +65,22 @@ public class PlayerMovement : MonoBehaviour
         
         if (Input.GetButtonDown("Jump") && grounded)
         {
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * grav);
+            velocity.y = Mathf.Sqrt(jumpHeight * -0.2f * grav);
 
         }
 
         if (Input.GetKey(KeyCode.LeftShift)) {
-            ms = 20f;
+            ms = sprintSpeed;
         }
         else
         {
-            ms = 10f;
+            ms = 3f;
 
         }
         velocity.y += grav * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime); 
 
-        if (Input.GetKey(KeyCode.LeftControl))
-        {
-            controller.height = 1f;
-            controller.center = new Vector3(0,0.5f,0);
-        }
-        else
-        {
-            controller.height = 2f;
-            controller.center = new Vector3(0,0,0);
-        }
+      
     }
 }
