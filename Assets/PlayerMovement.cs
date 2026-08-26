@@ -5,7 +5,6 @@ public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controller;
     public Transform cameraTransform ;
-
     private Animator animator;
     public float ms = 3f;
     public float rotationSpeed = 10f;
@@ -13,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
     public float grav = 1f;
     public float height = 2f;
     public float sprintSpeed = 10f;
+    public float crouchHeight = 1f;
+    private float normalHeight;
     private Vector3 velocity;
 
 
@@ -20,6 +21,8 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        normalHeight = controller.height;
+
     }
 
     void Update()
@@ -52,9 +55,12 @@ public class PlayerMovement : MonoBehaviour
 
         bool isMoving = move.magnitude > 0.1f;
         bool isSprinting = isMoving && Input.GetKey(KeyCode.LeftShift);
+        bool isCrouching =  Input.GetKey(KeyCode.LeftControl);
+
         animator.SetBool("isMoving", isMoving);
         animator.SetBool("isSprinting", isSprinting);
         animator.SetBool("isJumping", !grounded);
+        animator.SetBool("isCrouching", isCrouching);
 
         if (isMoving)
         {
@@ -76,6 +82,16 @@ public class PlayerMovement : MonoBehaviour
         {
             ms = 3f;
 
+        }
+       if (Input.GetKey(KeyCode.LeftControl))
+        {
+            controller.height = crouchHeight;
+            controller.center = new Vector3(0, crouchHeight / 2f, 0);
+        }
+        else
+        {
+            controller.height = normalHeight;
+            controller.center = new Vector3(0, normalHeight / 2f, 0);
         }
         velocity.y += grav * Time.deltaTime;
 
