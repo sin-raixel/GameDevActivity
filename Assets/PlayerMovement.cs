@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -15,19 +16,38 @@ public class PlayerMovement : MonoBehaviour
     public float crouchHeight = 1f;
     private float normalHeight;
     private Vector3 velocity;
-
+    public int health = 100;
+    public Slider healthBar;
+    private float damageTimer = 0f;
+    public bool isDead = false;
 
     
     void Start()
     {
-        animator = GetComponent<Animator>();
-        normalHeight = controller.height;
+          animator = GetComponent<Animator>();
+    normalHeight = controller.height;
 
+        healthBar.maxValue = 100;
+        healthBar.value = health;
     }
 
     void Update()
     {
         MovePlayer();
+        
+
+        
+    if (damageTimer > 0)
+        damageTimer -= Time.deltaTime;
+
+        if (isDead)
+        return;
+
+    MovePlayer();
+
+    if (damageTimer > 0)
+        damageTimer -= Time.deltaTime;
+        
     }
 
     private void MovePlayer()
@@ -98,5 +118,41 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime); 
 
       
+    }
+     public void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+       if (hit.gameObject.CompareTag("Lava") && damageTimer <= 0)
+    {
+        TakeDamage(10);
+        damageTimer = 1f;
+    }
+        if (hit.gameObject.CompareTag("Boulder")){
+                    TakeDamage(100);
+
+        }
+    }
+    private void TakeDamage(int v)
+    {
+        health -= v;
+        healthBar.value = health;
+
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+        private void Die()
+        {
+            isDead = true;
+            animator.SetTrigger("isDead");
+            StartCoroutine(DeathSequence());
+        }
+        private System.Collections.IEnumerator DeathSequence()
+    {
+        yield return new WaitForSeconds(2f);
+
+        UIManagerScript.instance.ShowDeathUI();
+        gameObject.SetActive(false);
     }
 }

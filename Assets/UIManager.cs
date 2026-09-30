@@ -3,14 +3,20 @@ using UnityEngine.SceneManagement;
 
 public class UIManagerScript : MonoBehaviour
 {
-    public static UIManagerScript instace;
+    public static UIManagerScript instance;
+
     [SerializeField] private GameObject pause;
     [SerializeField] private GameObject death;
+    [SerializeField] private GameObject win;
+
     private bool isActive = false;
+
     private void Start()
     {
-        instace = this;
+        instance = this;
         pause.SetActive(isActive);
+        death.SetActive(false);
+        win.SetActive(false);
     }
 
     private void Update()
@@ -39,28 +45,38 @@ public class UIManagerScript : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit()
+        Application.Quit();
 #endif
     }
 
     public void ShowDeathUI()
     {
-
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         death.SetActive(true);
     }
 
+    public void ShowWinUI()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        win.SetActive(true);
+    }
+
     public void OnRespawn()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
     private void TogglePause()
     {
         isActive = !isActive;
         pause.SetActive(isActive);
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = isActive;
+
         if (Time.timeScale == 1)
         {
             Time.timeScale = 0;

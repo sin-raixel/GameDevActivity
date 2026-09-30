@@ -7,6 +7,9 @@ TagManager:
   - Ground
   - Egg
   - Laser
+  - Coins
+  - Boulder
+  - Lava
   layers:
   - Default
   - TransparentFX
